@@ -170,13 +170,16 @@
         let registros = JSON.parse(localStorage.getItem('registrosReporteDirector')) || [];
         
         // Obtener información del usuario actual
-        const usuarioActual = JSON.parse(sessionStorage.getItem('currentUser')) || {};
+        const usuarioActual = JSON.parse(sessionStorage.getItem('user')) || {};
         const esAdmin = usuarioActual.role === 'admin';
+        const esDirectiva = usuarioActual.role === 'directiva';
         const nombreDirector = usuarioActual.username;
 
         // Función para verificar permisos
         function tienePermisosEdicion() {
-            if (esAdmin) return true;
+            if (!usuarioActual || !usuarioActual.token) return false;
+            if (esAdmin || esDirectiva) return true;
+            
             if (usuarioActual.role === 'Director') {
                 const editIndex = parseInt(document.getElementById('editIndex').value);
                 const selectorNombre = document.getElementById('nombre');
@@ -186,25 +189,39 @@
                 selectorNombre.disabled = true;
                 
                 // Permitir edición si es un nuevo registro o si el registro existente le pertenece
-                if (editIndex === -1 || (editIndex >= 0 && registros[editIndex].nombre === nombreDirector)) {
+                if (editIndex === -1 || 
+                    (editIndex >= 0 && 
+                    (registros[editIndex].nombre === nombreDirector || 
+                     registros[editIndex].creadorId === usuarioActual.token))) {
                     return true;
                 }
             }
             return false;
         }
 
-        function tienePermisosEliminacion() {
-            return esAdmin;
+        function tienePermisosEliminacion(index) {
+            return esAdmin || esDirectiva || 
+                   (usuarioActual.role === 'Director' && 
+                    registros[index].creadorId === usuarioActual.token);
         }
 
-        // Filtrar registros según el rol
+        // Filtrar registros según el rol y permisos
         function filtrarRegistros() {
-            if (esAdmin) {
+            if (!usuarioActual || !usuarioActual.token) {
+                window.location.href = '../../index.html';
+                return [];
+            }
+
+            if (esAdmin || esDirectiva) {
                 return registros;
             } else if (usuarioActual.role === 'Director') {
-                return registros.filter(registro => registro.nombre === nombreDirector);
+                return registros.filter(registro => 
+                    registro.creadorId === usuarioActual.token || 
+                    registro.nombre === usuarioActual.username
+                );
+            } else {
+                return registros.filter(registro => registro.creadorId === usuarioActual.token);
             }
-            return [];
         }
 let directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
 let moderadores = JSON.parse(localStorage.getItem('registrosModerador')) || [];
@@ -247,9 +264,14 @@ function cargarLocutores() {
 }
 
 window.addEventListener('load', () => {
+    if (!usuarioActual || !usuarioActual.token) {
+        window.location.href = '../../index.html';
+        return;
+    }
     cargarDirectores();
     cargarModeradores();
     cargarLocutores();
+    actualizarTabla();
 });
 
 function cargarDirectores() {
@@ -260,27 +282,16 @@ function cargarDirectores() {
     directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
     const nombresUnicos = new Set(directores.map(d => d.nombre));
     
-    // Si el usuario es director, solo mostrar su nombre
-    if (usuarioActual.role === 'Director') {
-        const option = document.createElement('option');
-        option.value = nombreDirector;
-        option.textContent = nombreDirector;
-        selectorNombre.appendChild(option);
-        selectorNombre.value = nombreDirector;
-        selectorNombre.disabled = true;
-    } else {
-        Array.from(nombresUnicos).sort().forEach(nombre => {
-            if (nombre) {
-                const option = document.createElement('option');
-                option.value = nombre;
-                option.textContent = nombre;
-                selectorNombre.appendChild(option);
-            }
-        });
-    }
+    // Mostrar todos los directores disponibles
+    Array.from(nombresUnicos).sort().forEach(nombre => {
+        if (nombre) {
+            const option = document.createElement('option');
+            option.value = nombre;
+            option.textContent = nombre;
+            selectorNombre.appendChild(option);
+        }
+    });
 }
-
-window.addEventListener('load', cargarDirectores);
 
         function obtenerCategoria() {
             const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
@@ -289,6 +300,12 @@ window.addEventListener('load', cargarDirectores);
 
         function guardarRegistro(e) {
             e.preventDefault();
+            if (!usuarioActual || !usuarioActual.token) {
+                alert('Debe iniciar sesión para realizar esta acción');
+                window.location.href = '../../index.html';
+                return;
+            }
+            
             if (!tienePermisosEdicion()) {
                 alert('No tienes permisos para realizar esta acción');
                 return;
@@ -325,7 +342,9 @@ window.addEventListener('load', cargarDirectores);
                 moderador2: document.getElementById('moderador2').value,
                 locutor1: document.getElementById('locutor1').value,
                 locutor2: document.getElementById('locutor2').value,
-                observaciones: document.getElementById('observaciones').value
+                observaciones: document.getElementById('observaciones').value,
+                creadorId: usuarioActual.token,
+                creadorNombre: usuarioActual.username
             };
 
             const editIndex = document.getElementById('editIndex').value;
@@ -372,6 +391,11 @@ window.addEventListener('load', cargarDirectores);
         }
 
         function actualizarTabla() {
+            if (!usuarioActual || !usuarioActual.token) {
+                window.location.href = '../../index.html';
+                return;
+            }
+
             // Actualizar registros desde localStorage
             registros = JSON.parse(localStorage.getItem('registrosReporteDirector')) || [];
             const tabla = document.getElementById('registrosTabla');
@@ -408,7 +432,7 @@ window.addEventListener('load', cargarDirectores);
                         <td>${registro.observaciones}</td>
                         <td>
                             ${tienePermisosEdicion() ? `<button class="btn btn-sm btn-warning" onclick="editarRegistro(${registro.index})">Editar</button>` : ''}
-                            ${tienePermisosEliminacion() ? `<button class="btn btn-sm btn-danger" onclick="eliminarRegistro(${registro.index})">Eliminar</button>` : ''}
+                            ${tienePermisosEliminacion(registro.index) ? `<button class="btn btn-sm btn-danger" onclick="eliminarRegistro(${registro.index})">Eliminar</button>` : ''}
                         </td>
                     `;
                     tabla.appendChild(row);
