@@ -238,9 +238,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectorNombre = document.getElementById('nombre');
             selectorNombre.innerHTML = '<option value="">Seleccione un director</option>';
             
+            // Obtener la lista completa de directores
             const directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
             const nombresUnicos = new Set(directores.map(d => d.nombre));
             
+            // Mostrar todos los directores disponibles
             Array.from(nombresUnicos).sort().forEach(nombre => {
                 if (nombre) {
                     const option = document.createElement('option');
@@ -249,6 +251,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     selectorNombre.appendChild(option);
                 }
             });
+
+            // Si el usuario es un director, establecer y deshabilitar su nombre
+            if (usuarioActual.role === 'Director') {
+                selectorNombre.value = usuarioActual.username;
+                selectorNombre.disabled = true;
+            }
         }
 
         function cargarModeradores() {

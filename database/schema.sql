@@ -150,29 +150,3 @@ CREATE TABLE sesiones (
     activa BOOLEAN DEFAULT true,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
-
--- Insertar roles básicos
-INSERT INTO roles (nombre, descripcion, nivel_acceso) VALUES
-('admin', 'Administrador del sistema', 5),
-('director', 'Director de la radio', 4),
-('locutor', 'Locutor de programas', 3),
-('moderador', 'Moderador de contenido', 2);
-
--- Insertar permisos básicos
-INSERT INTO permisos (nombre, descripcion, categoria, nivel_requerido) VALUES
-('gestionar_usuarios', 'Crear, editar y eliminar usuarios', 'Administración', 5),
-('gestionar_directores', 'Gestionar información de directores', 'Personal', 4),
-('gestionar_locutores', 'Gestionar información de locutores', 'Personal', 4),
-('gestionar_moderadores', 'Gestionar información de moderadores', 'Personal', 4),
-('ver_reportes', 'Ver reportes y estadísticas', 'Reportes', 3),
-('gestionar_horarios', 'Gestionar horarios y programación', 'Programación', 3),
-('gestionar_cumpleanos', 'Gestionar registros de cumpleaños', 'Personal', 2),
-('ver_auditoria', 'Ver registros de auditoría', 'Seguridad', 5),
-('gestionar_sesiones', 'Gestionar sesiones de usuarios', 'Seguridad', 5);
-
--- Asignar permisos a roles
-INSERT INTO roles_permisos (rol_id, permiso_id, asignado_por)
-SELECT r.id, p.id, (SELECT id FROM usuarios WHERE username = 'admin' LIMIT 1)
-FROM roles r
-CROSS JOIN permisos p
-WHERE r.nombre = 'admin';
