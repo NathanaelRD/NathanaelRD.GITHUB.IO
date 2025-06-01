@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Locutores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .container { max-width: 1200px; }
+        .form-container { background-color: #f8f9fa; padding: 20px; border-radius: 10px; }
+        .table-container { margin-top: 30px; }
+        .btn-action { margin: 0 5px; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Registro de Programación</h2>
+            <a href="PanelPrincipal.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Menú
+            </a>
+        </div>
+        <div class="form-container">
+            <form id="registroForm">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="horaInicio" class="form-label">Hora de Inicio</label>
+                        <input type="time" class="form-control" id="horaInicio" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="horaFin" class="form-label">Hora de Fin</label>
+                        <input type="time" class="form-control" id="horaFin" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Categoría</label>
+                        <div class="form-control" style="height: auto;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Domingo" id="catDomingo">
+                                <label class="form-check-label" for="catDomingo">Domingo</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Lunes" id="catLunes">
+                                <label class="form-check-label" for="catLunes">Lunes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Martes" id="catMartes">
+                                <label class="form-check-label" for="catMartes">Martes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Miércoles" id="catMiercoles">
+                                <label class="form-check-label" for="catMiercoles">Miércoles</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Jueves" id="catJueves">
+                                <label class="form-check-label" for="catJueves">Jueves</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Viernes" id="catViernes">
+                                <label class="form-check-label" for="catViernes">Viernes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Sábado" id="catSabado">
+                                <label class="form-check-label" for="catSabado">Sábado</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Sábados y Domingos" id="catSabadosDomingos">
+                                <label class="form-check-label" for="catSabadosDomingos">Sábados y Domingos</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="Lunes a Viernes" id="catLunesViernes">
+                                <label class="form-check-label" for="catLunesViernes">Lunes a Viernes</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="cumpleanos" class="form-label">Fecha de Cumpleaños</label>
+                        <input type="date" class="form-control" id="cumpleanos" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="programa" class="form-label">Programa</label>
+                        <input type="text" class="form-control" id="programa" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="slogan" class="form-label">Slogan</label>
+                        <input type="text" class="form-control" id="slogan" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="cantoTema" class="form-label">Canto Tema</label>
+                    <input type="text" class="form-control" id="cantoTema" required>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">Limpiar</button>
+                    <button type="button" class="btn btn-success" onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Exportar a PDF</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Categoría</th>
+                        <th>Nombre</th>
+                        <th>Fecha de Cumpleaños</th>
+                        <th>Programa</th>
+                        <th>Slogan</th>
+                        <th>Canto Tema</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="registrosTabla"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let registros = JSON.parse(localStorage.getItem('registros')) || [];
+
+        function obtenerCategoria() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value).join(', ');
+        }
+
+        function guardarRegistro(e) {
+            e.preventDefault();
+            const registro = {
+                horaInicio: document.getElementById('horaInicio').value,
+                horaFin: document.getElementById('horaFin').value,
+                categoria: obtenerCategoria(),
+                nombre: document.getElementById('nombre').value,
+                cumpleanos: document.getElementById('cumpleanos').value,
+                programa: document.getElementById('programa').value,
+                slogan: document.getElementById('slogan').value,
+                cantoTema: document.getElementById('cantoTema').value
+            };
+
+            const editIndex = document.getElementById('editIndex').value;
+            if (editIndex === '-1') {
+                registros.push(registro);
+            } else {
+                registros[parseInt(editIndex)] = registro;
+            }
+
+            localStorage.setItem('registros', JSON.stringify(registros));
+            actualizarTabla();
+            limpiarFormulario();
+        }
+
+        function editarRegistro(index) {
+            const registro = registros[index];
+            document.getElementById('horaInicio').value = registro.horaInicio;
+            document.getElementById('horaFin').value = registro.horaFin;
+            const categorias = registro.categoria.split(', ');
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = categorias.includes(cb.value);
+            });
+            document.getElementById('nombre').value = registro.nombre;
+            document.getElementById('cumpleanos').value = registro.cumpleanos;
+            document.getElementById('programa').value = registro.programa;
+            document.getElementById('slogan').value = registro.slogan;
+            document.getElementById('cantoTema').value = registro.cantoTema;
+            document.getElementById('editIndex').value = index;
+        }
+
+        function eliminarRegistro(index) {
+            if (confirm('¿Está seguro de que desea eliminar este registro?')) {
+                registros.splice(index, 1);
+                localStorage.setItem('registros', JSON.stringify(registros));
+                actualizarTabla();
+            }
+        }
+
+        function actualizarTabla() {
+            const tabla = document.getElementById('registrosTabla');
+            tabla.innerHTML = '';
+
+            // Agrupar registros por categoría
+            const registrosPorCategoria = {};
+            registros.forEach(registro => {
+                const categorias = registro.categoria.split(', ');
+                categorias.forEach(cat => {
+                    if (!registrosPorCategoria[cat]) {
+                        registrosPorCategoria[cat] = [];
+                    }
+                    registrosPorCategoria[cat].push(registro);
+                });
+            });
+
+            // Ordenar categorías alfabéticamente
+            const categoriasOrdenadas = Object.keys(registrosPorCategoria).sort();
+
+            categoriasOrdenadas.forEach(categoria => {
+                // Agregar encabezado de categoría
+                const encabezadoCategoria = document.createElement('tr');
+                encabezadoCategoria.innerHTML = `
+                    <td colspan="9" class="table-primary fw-bold">
+                        ${categoria}
+                    </td>
+                `;
+                tabla.appendChild(encabezadoCategoria);
+
+                // Ordenar registros por hora de inicio
+                const registrosOrdenados = registrosPorCategoria[categoria].sort((a, b) => 
+                    a.horaInicio.localeCompare(b.horaInicio)
+                );
+
+                // Mostrar registros de esta categoría
+                registrosOrdenados.forEach(registro => {
+                    const index = registros.indexOf(registro);
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${registro.horaInicio}</td>
+                        <td>${registro.horaFin}</td>
+                        <td>${registro.categoria}</td>
+                        <td>${registro.nombre}</td>
+                        <td>${registro.cumpleanos}</td>
+                        <td>${registro.programa}</td>
+                        <td>${registro.slogan}</td>
+                        <td>${registro.cantoTema}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editarRegistro(${index})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="eliminarRegistro(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tabla.appendChild(fila);
+                });
+            });
+
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('registroForm').reset();
+            document.getElementById('editIndex').value = '-1';
+        }
+
+        document.getElementById('registroForm').addEventListener('submit', guardarRegistro);
+        actualizarTabla();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function exportarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+
+            // Configuración de estilos
+            doc.setFontSize(18);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Registro de Programación - RJA Radio', 15, 20);
+
+            // Agrupar registros por categoría
+            const registrosPorCategoria = {};
+            registros.forEach(registro => {
+                const categorias = registro.categoria.split(', ');
+                categorias.forEach(cat => {
+                    if (!registrosPorCategoria[cat]) {
+                        registrosPorCategoria[cat] = [];
+                    }
+                    registrosPorCategoria[cat].push(registro);
+                });
+            });
+
+            let yPos = 30;
+            const categoriasOrdenadas = Object.keys(registrosPorCategoria).sort();
+
+            categoriasOrdenadas.forEach(categoria => {
+                // Título de la categoría
+                doc.setFontSize(14);
+                doc.setTextColor(52, 152, 219);
+                doc.text(categoria, 15, yPos);
+                yPos += 10;
+
+                // Datos de la tabla
+                const registrosOrdenados = registrosPorCategoria[categoria].sort((a, b) => 
+                    a.horaInicio.localeCompare(b.horaInicio)
+                );
+
+                doc.autoTable({
+                    startY: yPos,
+                    head: [['Hora Inicio', 'Hora Fin', 'Nombre', 'Cumpleaños', 'Programa', 'Slogan', 'Canto Tema']],
+                    body: registrosOrdenados.map(reg => [
+                        reg.horaInicio,
+                        reg.horaFin,
+                        reg.nombre,
+                        reg.cumpleanos,
+                        reg.programa,
+                        reg.slogan,
+                        reg.cantoTema
+                    ]),
+                    theme: 'striped',
+                    headStyles: { fillColor: [44, 62, 80] },
+                    margin: { top: 10 }
+                });
+
+                yPos = doc.lastAutoTable.finalY + 15;
+
+                // Si la página está llena, agregar una nueva
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+            });
+
+            // Guardar el PDF
+            doc.save('registro-programacion-rja.pdf');
+        }
+    </script>
+</body>
+</html>

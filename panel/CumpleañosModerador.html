@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cumpleaños Moderadores - RJA Radio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(rgba(245, 246, 250, 0.9), rgba(245, 246, 250, 0.9)), url('../img/Logo_fondo.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            padding: 1rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .birthday-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .birthday-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .birthday-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: #2c3e50;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .card-header i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .no-birthdays {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="../panel/PanelCumpleaños.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <h1>Cumpleaños Moderadores</h1>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="birthdayContainer" class="birthday-cards">
+            <!-- Las tarjetas de cumpleaños se generarán aquí dinámicamente -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para obtener los datos de los moderadores
+            async function obtenerDatosModerador() {
+                try {
+                    const registrosJSON = localStorage.getItem('registrosModerador');
+                    if (!registrosJSON) {
+                        console.log('No hay registros de moderadores en localStorage');
+                        return [];
+                    }
+                    const registros = JSON.parse(registrosJSON);
+                    return registros.map(registro => ({
+                        nombre: registro.nombre || '',
+                        fechaCumple: registro.fechaCumpleanos || ''
+                    }));
+                } catch (error) {
+                    console.error('Error al obtener datos:', error);
+                    return [];
+                }
+            }
+
+            // Función para verificar si es el cumpleaños
+            function esCumpleañosHoy(fechaCumple) {
+                if (!fechaCumple) return false;
+                
+                const hoy = new Date();
+                const fecha = new Date(fechaCumple);
+                
+                // Ajustar la fecha para considerar la zona horaria
+                fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+                
+                return hoy.getDate() === fecha.getDate() && 
+                       hoy.getMonth() === fecha.getMonth();
+            }
+
+            // Función para mostrar los cumpleañeros
+            async function mostrarCumpleañeros() {
+                const container = document.getElementById('birthdayContainer');
+                const moderadores = await obtenerDatosModerador();
+                const cumpleañeros = moderadores.filter(mod => esCumpleañosHoy(mod.fechaCumple));
+
+                if (cumpleañeros.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-birthdays">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem; color: #2c3e50; margin-bottom: 1rem;"></i>
+                            <h2>No hay cumpleaños hoy</h2>
+                            <p>Ningún moderador cumple años en el día de hoy.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = cumpleañeros.map(mod => `
+                    <div class="birthday-card">
+                        <div class="card-header">
+                            <i class="fas fa-gift"></i>
+                            <h2>¡Feliz Cumpleaños!</h2>
+                        </div>
+                        <div class="card-content">
+                            <h3>${mod.nombre}</h3>
+                            <p>Te deseamos un día maravilloso lleno de bendiciones.</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Iniciar la aplicación
+            mostrarCumpleañeros();
+        });
+    </script>
+</body>
+</html>

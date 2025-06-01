@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - RJA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .nav-link {
+            color: #333;
+            transition: all 0.3s;
+        }
+        .nav-link:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        .card {
+            transition: all 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin/GestionUsuarios.html">
+                                <i class="bi bi-people"></i> Gestión de Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Registro_Directores.html">
+                                <i class="bi bi-person-badge"></i> Directores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Registro_Locutores.html">
+                                <i class="bi bi-mic"></i> Locutores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Registro_Moderadores.html">
+                                <i class="bi bi-shield-check"></i> Moderadores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="PanelCumpleaños.html">
+                                <i class="bi bi-calendar-event"></i> Cumpleaños
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Reportes_Directores.html">
+                                <i class="bi bi-file-text"></i> Reportes
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-danger" href="#" onclick="logout()">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1>Panel de Administración</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Exportar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Cards -->
+                <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Usuarios Activos</h5>
+                                <p class="card-text display-6">24</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Reportes Pendientes</h5>
+                                <p class="card-text display-6">12</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Cumpleaños del Mes</h5>
+                                <p class="card-text display-6">5</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <h2>Actividad Reciente</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Acción</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityLog">
+                            <!-- Activity logs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Verificar autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (!user || user.role !== 'admin') {
+                window.location.href = '../index.html';
+            }
+        });
+
+        // Función para cerrar sesión
+        function logout() {
+            sessionStorage.removeItem('user');
+            window.location.href = '../index.html';
+        }
+
+        // Simulación de datos de actividad reciente
+        const activities = [
+            { user: 'Admin1', action: 'Creó nuevo usuario', date: '2024-01-15 10:30', status: 'Completado' },
+            { user: 'Admin2', action: 'Actualizó reporte', date: '2024-01-15 09:45', status: 'Pendiente' },
+            { user: 'Admin1', action: 'Eliminó usuario', date: '2024-01-14 15:20', status: 'Completado' }
+        ];
+
+        // Poblar tabla de actividades
+        const activityLog = document.getElementById('activityLog');
+        activities.forEach(activity => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${activity.user}</td>
+                <td>${activity.action}</td>
+                <td>${activity.date}</td>
+                <td><span class="badge ${activity.status === 'Completado' ? 'bg-success' : 'bg-warning'}">${activity.status}</span></td>
+            `;
+            activityLog.appendChild(row);
+        });
+
+        // Función para obtener el total de cumpleaños del mes
+        function obtenerTotalCumpleañosMes() {
+            let total = 0;
+            const mesActual = new Date().getMonth();
+            
+            // Función auxiliar para procesar fechas
+            function procesarFecha(fecha) {
+                if (!fecha) return null;
+                try {
+                    // Si la fecha está en formato YYYY-MM-DD
+                    if (fecha.includes('-')) {
+                        const [year, month] = fecha.split('-');
+                        return parseInt(month) - 1;
+                    }
+                    // Si la fecha es un objeto Date
+                    return new Date(fecha).getMonth();
+                } catch (error) {
+                    console.error('Error al procesar fecha:', error);
+                    return null;
+                }
+            }
+
+            // Obtener cumpleaños de directores
+            try {
+                const directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
+                const cumpleañosDirectores = directores.filter(director => {
+                    const mes = procesarFecha(director.fechaNacimiento);
+                    return mes === mesActual;
+                }).length;
+                total += cumpleañosDirectores;
+            } catch (error) {
+                console.error('Error al obtener cumpleaños de directores:', error);
+            }
+
+            // Obtener cumpleaños de locutores
+            try {
+                const locutores = JSON.parse(localStorage.getItem('registros')) || [];
+                const cumpleañosLocutores = locutores.filter(locutor => {
+                    const mes = procesarFecha(locutor.cumpleanos);
+                    return mes === mesActual;
+                }).length;
+                total += cumpleañosLocutores;
+            } catch (error) {
+                console.error('Error al obtener cumpleaños de locutores:', error);
+            }
+
+            // Obtener cumpleaños de moderadores
+            try {
+                const moderadores = JSON.parse(localStorage.getItem('registrosModerador')) || [];
+                const cumpleañosModerador = moderadores.filter(moderador => {
+                    const mes = procesarFecha(moderador.fechaCumpleanos);
+                    return mes === mesActual;
+                }).length;
+                total += cumpleañosModerador;
+            } catch (error) {
+                console.error('Error al obtener cumpleaños de moderadores:', error);
+            }
+
+            return total;
+        }
+
+        // Actualizar el contador de cumpleaños al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalCumpleaños = obtenerTotalCumpleañosMes();
+            document.querySelector('.card-text.display-6').textContent = totalCumpleaños;
+        });
+    </script>
+</body>
+</html>
