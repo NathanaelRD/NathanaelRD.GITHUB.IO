@@ -52,6 +52,7 @@ CREATE TABLE locutores (
     direccion TEXT,
     programa VARCHAR(100),
     horario VARCHAR(100),
+    dias_trabajo VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
@@ -66,6 +67,11 @@ CREATE TABLE moderadores (
     fecha_nacimiento DATE NOT NULL,
     telefono VARCHAR(20),
     direccion TEXT,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    periodo_inicio ENUM('AM', 'PM') NOT NULL,
+    periodo_fin ENUM('AM', 'PM') NOT NULL,
+    dias_moderacion VARCHAR(255),
     area_moderacion VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -100,6 +106,8 @@ CREATE TABLE auditoria (
     registro_id INT,
     detalles TEXT,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
@@ -116,7 +124,9 @@ INSERT INTO permisos (nombre, descripcion) VALUES
 ('gestionar_directores', 'Gestionar información de directores'),
 ('gestionar_locutores', 'Gestionar información de locutores'),
 ('gestionar_moderadores', 'Gestionar información de moderadores'),
-('ver_reportes', 'Ver reportes y estadísticas');
+('ver_reportes', 'Ver reportes y estadísticas'),
+('gestionar_horarios', 'Gestionar horarios y programación'),
+('gestionar_cumpleanos', 'Gestionar registros de cumpleaños');
 
 -- Asignar permisos a roles
 INSERT INTO roles_permisos (rol_id, permiso_id)
