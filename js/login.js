@@ -34,7 +34,7 @@ const users = [
     { username: 'Alexander', password: 'asd3-5pm', role: 'dh' },
     { username: 'Lety', password: 'lsd5-7pm', role: 'dh' },
     { username: 'Ruben', password: 'rsd7-9pm', role: 'dh' },
-    { username: 'Naty', password: 'nrmsd9-11pm', role: 'dh' }
+    { username: 'Naty', password: 'nrmlv9-11pm', role: 'dh' }
 
 ];
 
