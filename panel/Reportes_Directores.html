@@ -173,12 +173,13 @@
         const usuarioActual = JSON.parse(sessionStorage.getItem('user')) || {};
         const esAdmin = usuarioActual.role === 'admin';
         const esDirectiva = usuarioActual.role === 'directiva';
+        const esDH = usuarioActual.role === 'DH';
         const nombreDirector = usuarioActual.username;
 
         // Función para verificar permisos
         function tienePermisosEdicion() {
             if (!usuarioActual || !usuarioActual.token) return false;
-            if (esAdmin || esDirectiva) return true;
+            if (esAdmin || esDirectiva || esDH) return true;
             
             if (usuarioActual.role === 'Director') {
                 const editIndex = parseInt(document.getElementById('editIndex').value);
@@ -200,7 +201,7 @@
         }
 
         function tienePermisosEliminacion(index) {
-            return esAdmin || esDirectiva || 
+            return esAdmin || esDirectiva || esDH || 
                    (usuarioActual.role === 'Director' && 
                     registros[index].creadorId === usuarioActual.token);
         }
@@ -212,7 +213,7 @@
                 return [];
             }
 
-            if (esAdmin || esDirectiva) {
+            if (esAdmin || esDirectiva || esDH) {
                 return registros;
             } else if (usuarioActual.role === 'Director') {
                 return registros.filter(registro => 
