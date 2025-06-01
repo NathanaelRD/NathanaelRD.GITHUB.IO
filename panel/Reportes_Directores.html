@@ -223,45 +223,73 @@
                 return registros.filter(registro => registro.creadorId === usuarioActual.token);
             }
         }
-let directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
-let moderadores = JSON.parse(localStorage.getItem('registrosModerador')) || [];
-let locutores = JSON.parse(localStorage.getItem('registros')) || [];
-
-function cargarModeradores() {
-    const selectores = ['moderador1', 'moderador2'];
-    selectores.forEach(id => {
-        const selector = document.getElementById(id);
-        selector.innerHTML = '<option value="">Seleccione un moderador</option>';
-        
-        const nombresUnicos = new Set(moderadores.map(m => m.nombre));
-        Array.from(nombresUnicos).sort().forEach(nombre => {
-            if (nombre) {
-                const option = document.createElement('option');
-                option.value = nombre;
-                option.textContent = nombre;
-                selector.appendChild(option);
+document.addEventListener('DOMContentLoaded', function() {
+            if (!usuarioActual || !usuarioActual.token) {
+                window.location.href = '../index.html';
+                return;
             }
+            cargarDirectores();
+            cargarModeradores();
+            cargarLocutores();
+            actualizarTabla();
         });
-    });
-}
 
-function cargarLocutores() {
-    const selectores = ['locutor1', 'locutor2'];
-    selectores.forEach(id => {
-        const selector = document.getElementById(id);
-        selector.innerHTML = '<option value="">Seleccione un locutor</option>';
-        
-        const nombresUnicos = new Set(locutores.map(l => l.nombre));
-        Array.from(nombresUnicos).sort().forEach(nombre => {
-            if (nombre) {
-                const option = document.createElement('option');
-                option.value = nombre;
-                option.textContent = nombre;
-                selector.appendChild(option);
-            }
-        });
-    });
-}
+        function cargarDirectores() {
+            const selectorNombre = document.getElementById('nombre');
+            selectorNombre.innerHTML = '<option value="">Seleccione un director</option>';
+            
+            const directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
+            const nombresUnicos = new Set(directores.map(d => d.nombre));
+            
+            Array.from(nombresUnicos).sort().forEach(nombre => {
+                if (nombre) {
+                    const option = document.createElement('option');
+                    option.value = nombre;
+                    option.textContent = nombre;
+                    selectorNombre.appendChild(option);
+                }
+            });
+        }
+
+        function cargarModeradores() {
+            const moderadores = JSON.parse(localStorage.getItem('registrosModerador')) || [];
+            const nombresUnicos = new Set(moderadores.map(m => m.nombre));
+            const selectores = ['moderador1', 'moderador2'];
+
+            selectores.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                selector.innerHTML = '<option value="">Seleccione un moderador</option>';
+                
+                Array.from(nombresUnicos).sort().forEach(nombre => {
+                    if (nombre) {
+                        const option = document.createElement('option');
+                        option.value = nombre;
+                        option.textContent = nombre;
+                        selector.appendChild(option);
+                    }
+                });
+            });
+        }
+
+        function cargarLocutores() {
+            const locutores = JSON.parse(localStorage.getItem('registros')) || [];
+            const nombresUnicos = new Set(locutores.map(l => l.nombre));
+            const selectores = ['locutor1', 'locutor2'];
+
+            selectores.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                selector.innerHTML = '<option value="">Seleccione un locutor</option>';
+                
+                Array.from(nombresUnicos).sort().forEach(nombre => {
+                    if (nombre) {
+                        const option = document.createElement('option');
+                        option.value = nombre;
+                        option.textContent = nombre;
+                        selector.appendChild(option);
+                    }
+                });
+            });
+        }
 
 window.addEventListener('load', () => {
     if (!usuarioActual || !usuarioActual.token) {
