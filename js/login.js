@@ -34,11 +34,7 @@ const users = [
     { username: 'Alexander', password: 'asd3-5pm', role: 'dh' },
     { username: 'Lety', password: 'lsd5-7pm', role: 'dh' },
     { username: 'Ruben', password: 'rsd7-9pm', role: 'dh' },
-    { username: 'Aleida', password: 'alv1-3pm', role: 'dh' },
-    { username: 'Luis', password: 'llv3-5pm', role: 'dh' },
-    { username: 'Glenda', password: 'glv5-7pm', role: 'dh' },
-    { username: 'Paty', password: 'plv7-9pm', role: 'dh' },
-    { username: 'Dumas', password: 'dlv9-11pm', role: 'dh' }
+    { username: 'Naty', password: 'nrmsd9-11pm', role: 'dh' }
 
 ];
 
