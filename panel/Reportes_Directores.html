@@ -178,51 +178,20 @@
 
         // Función para verificar permisos
         function tienePermisosEdicion() {
-            if (!usuarioActual || !usuarioActual.token) return false;
-            if (esAdmin || esDirectiva || esDH) return true;
-            
-            if (usuarioActual.role === 'Director') {
-                const editIndex = parseInt(document.getElementById('editIndex').value);
-                const selectorNombre = document.getElementById('nombre');
-                
-                // Establecer automáticamente el nombre del director
-                selectorNombre.value = nombreDirector;
-                selectorNombre.disabled = true;
-                
-                // Permitir edición si es un nuevo registro o si el registro existente le pertenece
-                if (editIndex === -1 || 
-                    (editIndex >= 0 && 
-                    (registros[editIndex].nombre === nombreDirector || 
-                     registros[editIndex].creadorId === usuarioActual.token))) {
-                    return true;
-                }
-            }
-            return false;
+            return usuarioActual && usuarioActual.token;
         }
 
         function tienePermisosEliminacion(index) {
-            return esAdmin || esDirectiva || esDH || 
-                   (usuarioActual.role === 'Director' && 
-                    registros[index].creadorId === usuarioActual.token);
+            return usuarioActual && usuarioActual.token;
         }
 
-        // Filtrar registros según el rol y permisos
+        // Mostrar todos los registros sin filtros
         function filtrarRegistros() {
             if (!usuarioActual || !usuarioActual.token) {
                 window.location.href = '../../index.html';
                 return [];
             }
-
-            if (esAdmin || esDirectiva || esDH) {
-                return registros;
-            } else if (usuarioActual.role === 'Director') {
-                return registros.filter(registro => 
-                    registro.creadorId === usuarioActual.token || 
-                    registro.nombre === usuarioActual.username
-                );
-            } else {
-                return registros.filter(registro => registro.creadorId === usuarioActual.token);
-            }
+            return registros;
         }
 document.addEventListener('DOMContentLoaded', function() {
             if (!usuarioActual || !usuarioActual.token) {
@@ -281,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function cargarLocutores() {
-            const locutores = JSON.parse(localStorage.getItem('registros')) || [];
+            const locutores = JSON.parse(localStorage.getItem('registrosLocutor')) || [];
             const nombresUnicos = new Set(locutores.map(l => l.nombre));
             const selectores = ['locutor1', 'locutor2'];
 
