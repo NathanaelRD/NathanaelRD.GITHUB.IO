@@ -83,7 +83,9 @@
                             </div>
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre del Director</label>
-                                <input type="text" class="form-control" id="nombre" required placeholder="Ingrese el nombre del director">
+                                <select class="form-select" id="nombre" required>
+                                    <option value="">Seleccione un director</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label for="fecha" class="form-label">Fecha</label>
@@ -99,11 +101,15 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="moderador1" class="form-label">Moderador 1</label>
-                                    <input type="text" class="form-control" id="moderador1" placeholder="Ingrese el nombre del moderador">
+                                    <select class="form-select" id="moderador1">
+                                        <option value="">Seleccione un moderador</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="moderador2" class="form-label">Moderador 2</label>
-                                    <input type="text" class="form-control" id="moderador2" placeholder="Ingrese el nombre del moderador">
+                                    <select class="form-select" id="moderador2">
+                                        <option value="">Seleccione un moderador</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -155,6 +161,7 @@
         </div>
     </div>
 
+    <script src="js/reportes_directores.js"></script>
     <script>
         window.jsPDF = window.jspdf.jsPDF;
         let registros = JSON.parse(localStorage.getItem('registrosReporteDirector')) || [];
@@ -190,13 +197,75 @@
             // Otros usuarios solo pueden ver sus propios registros
             return registros.filter(registro => registro.creadorNombre === usuarioActual.username);
         }
+// Función para cargar los locutores en los selectores
+function cargarLocutores() {
+    const registrosLocutores = JSON.parse(localStorage.getItem('registros')) || [];
+    const selectores = ['locutor1', 'locutor2'];
+    
+    selectores.forEach(selectorId => {
+        const select = document.getElementById(selectorId);
+        // Limpiar opciones existentes excepto la primera
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        
+        // Agregar locutores como opciones
+        registrosLocutores.forEach(locutor => {
+            const option = document.createElement('option');
+            option.value = locutor.nombre;
+            option.textContent = locutor.nombre;
+            select.appendChild(option);
+        });
+    });
+}
+
+// Cargar locutores cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    cargarLocutores();
+});
+
+// Función para cargar los moderadores en los selectores
+function cargarModeradores() {
+    const moderadores = JSON.parse(localStorage.getItem('registrosModerador')) || [];
+    const selectores = ['moderador1', 'moderador2'];
+    
+    selectores.forEach(selectorId => {
+        const select = document.getElementById(selectorId);
+        // Limpiar opciones existentes excepto la primera
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        // Agregar moderadores como opciones
+        moderadores.forEach(moderador => {
+            const option = document.createElement('option');
+            option.value = moderador.nombre;
+            option.textContent = moderador.nombre;
+            select.appendChild(option);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
             if (!usuarioActual || !usuarioActual.token) {
                 window.location.href = '../index.html';
                 return;
             }
+            cargarModeradores();
+            cargarListaDirectores();
             cargarDirectores();
             cargarModeradores();
+
+            function cargarListaDirectores() {
+                const directores = JSON.parse(localStorage.getItem('registrosDirector')) || [];
+                const selectDirectores = document.getElementById('nombre');
+                selectDirectores.innerHTML = '<option value="">Seleccione un director</option>';
+                directores.forEach(director => {
+                    const option = document.createElement('option');
+                    option.value = director.nombre;
+                    option.textContent = director.nombre;
+                    selectDirectores.appendChild(option);
+                });
+            }
             cargarLocutores();
             actualizarTabla();
         });
@@ -446,6 +515,7 @@ function cargarDirectores() {
         function limpiarFormulario() {
             document.getElementById('registroForm').reset();
             document.getElementById('editIndex').value = '-1';
+            cargarModeradores();
         }
 
         actualizarTabla();
