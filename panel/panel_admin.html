@@ -151,7 +151,29 @@
             window.location.href = '../index.html';
         }
 
-        // Simulación de datos de actividad reciente
+        // Función para calcular reportes pendientes del año
+        function calcularReportesPendientes() {
+            const reportes = JSON.parse(localStorage.getItem('registrosReporteDirector')) || [];
+            const fechaActual = new Date();
+            const inicioAno = new Date(fechaActual.getFullYear(), 0, 1);
+            const finAno = new Date(fechaActual.getFullYear(), 11, 31);
+            
+            // Total de días en el año que requieren reporte
+            const diasTotales = 365;
+            
+            // Contar reportes realizados en el año actual
+            const reportesRealizados = reportes.filter(reporte => {
+                const fechaReporte = new Date(reporte.fecha);
+                return fechaReporte >= inicioAno && fechaReporte <= finAno;
+            }).length;
+            
+            // Calcular reportes pendientes
+            const reportesPendientes = diasTotales - reportesRealizados;
+            
+            return reportesPendientes;
+        }
+
+        // Datos de actividad reciente
         const activities = [
             { user: 'Admin1', action: 'Creó nuevo usuario', date: '2024-01-15 10:30', status: 'Completado' },
             { user: 'Admin2', action: 'Actualizó reporte', date: '2024-01-15 09:45', status: 'Pendiente' },
@@ -232,10 +254,25 @@
             return total;
         }
 
-        // Actualizar el contador de cumpleaños al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
+        // Función para actualizar los contadores
+        function actualizarContadores() {
             const totalCumpleaños = obtenerTotalCumpleañosMes();
-            document.querySelector('.card-text.display-6').textContent = totalCumpleaños;
+            const reportesPendientes = calcularReportesPendientes();
+            
+            // Actualizar contador de cumpleaños
+            document.querySelectorAll('.card-text.display-6')[2].textContent = totalCumpleaños;
+            // Actualizar contador de reportes pendientes
+            document.querySelectorAll('.card-text.display-6')[1].textContent = reportesPendientes;
+        }
+
+        // Actualizar contadores al cargar la página
+        document.addEventListener('DOMContentLoaded', actualizarContadores);
+
+        // Actualizar contadores cuando cambie el almacenamiento local
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'registrosDirector' || e.key === 'registros' || e.key === 'registrosModerador') {
+                actualizarContadores();
+            }
         });
     </script>
 </body>
