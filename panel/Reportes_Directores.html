@@ -82,10 +82,8 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <select class="form-select" id="nombre" required>
-                                    <option value="">Seleccione un director</option>
-                                </select>
+                                <label for="nombre" class="form-label">Nombre del Director</label>
+                                <input type="text" class="form-control" id="nombre" required placeholder="Ingrese el nombre del director">
                             </div>
                             <div class="mb-3">
                                 <label for="fecha" class="form-label">Fecha</label>
@@ -101,29 +99,21 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="moderador1" class="form-label">Moderador 1</label>
-                                    <select class="form-select" id="moderador1">
-                                        <option value="">Seleccione un moderador</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="moderador1" placeholder="Ingrese el nombre del moderador">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="moderador2" class="form-label">Moderador 2</label>
-                                    <select class="form-select" id="moderador2">
-                                        <option value="">Seleccione un moderador</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="moderador2" placeholder="Ingrese el nombre del moderador">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="locutor1" class="form-label">Locutor 1</label>
-                                    <select class="form-select" id="locutor1">
-                                        <option value="">Seleccione un locutor</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="locutor1" placeholder="Ingrese el nombre del locutor">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="locutor2" class="form-label">Locutor 2</label>
-                                    <select class="form-select" id="locutor2">
-                                        <option value="">Seleccione un locutor</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="locutor2" placeholder="Ingrese el nombre del locutor">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -185,13 +175,20 @@
             return usuarioActual && usuarioActual.token;
         }
 
-        // Mostrar todos los registros sin filtros
+        // Filtrar registros según el rol del usuario y creador
         function filtrarRegistros() {
             if (!usuarioActual || !usuarioActual.token) {
                 window.location.href = '../../index.html';
                 return [];
             }
-            return registros;
+            
+            // Usuarios con rol admin o directiva pueden ver todos los registros
+            if (usuarioActual.role === 'admin' || usuarioActual.role === 'directiva') {
+                return registros;
+            }
+            
+            // Otros usuarios solo pueden ver sus propios registros
+            return registros.filter(registro => registro.creadorNombre === usuarioActual.username);
         }
 document.addEventListener('DOMContentLoaded', function() {
             if (!usuarioActual || !usuarioActual.token) {
