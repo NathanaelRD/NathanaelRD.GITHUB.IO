@@ -1,78 +1,150 @@
--- Crear la base de datos
-CREATE DATABASE IF NOT EXISTS zona2_db;
-USE zona2_db;
+
+
+-- Tabla de roles
+CREATE TABLE roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,
+    descripcion TEXT,
+    nivel_acceso INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL
+);
 
 -- Tabla de usuarios
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE usuarios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'dr-aventureros', 'dr-conquistador', 'dr-guias', 'secretaria', 'tesorero') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    email VARCHAR(100) UNIQUE NOT NULL,
+    rol_id INT,
+    activo BOOLEAN DEFAULT true,
+    ultimo_login DATETIME,
+    intentos_fallidos INT DEFAULT 0,
+    fecha_bloqueo DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (rol_id) REFERENCES roles(id)
 );
 
--- Tabla de clubes
-CREATE TABLE IF NOT EXISTS clubes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    tipo ENUM('aventureros', 'conquistadores', 'guias') NOT NULL,
-    director_id INT,
-    FOREIGN KEY (director_id) REFERENCES usuarios(id)
-);
-
--- Tabla de miembros
-CREATE TABLE IF NOT EXISTS miembros (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- Tabla de directores
+CREATE TABLE directores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero ENUM('M', 'F') NOT NULL,
-    club_id INT,
-    clase VARCHAR(50),
-    fecha_ingreso DATE NOT NULL,
-    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
-    FOREIGN KEY (club_id) REFERENCES clubes(id)
+    telefono VARCHAR(20),
+    celular VARCHAR(20),
+    direccion TEXT,
+    cargo VARCHAR(100),
+    departamento VARCHAR(100),
+    fecha_ingreso DATE,
+    hora_entrada TIME,
+    hora_salida TIME,
+    periodo_entrada ENUM('AM', 'PM') NOT NULL,
+    periodo_salida ENUM('AM', 'PM') NOT NULL,
+    dias_laborables VARCHAR(255),
+    estado_civil VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
--- Tabla de asistencias
-CREATE TABLE IF NOT EXISTS asistencias (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    miembro_id INT,
-    fecha DATE NOT NULL,
-    estado ENUM('presente', 'ausente', 'tardanza') NOT NULL,
-    FOREIGN KEY (miembro_id) REFERENCES miembros(id)
+-- Tabla de locutores
+CREATE TABLE locutores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    telefono VARCHAR(20),
+    celular VARCHAR(20),
+    direccion TEXT,
+    programa VARCHAR(100),
+    descripcion_programa TEXT,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    periodo_inicio ENUM('AM', 'PM') NOT NULL,
+    periodo_fin ENUM('AM', 'PM') NOT NULL,
+    dias_trabajo VARCHAR(255),
+    estado_civil VARCHAR(20),
+    experiencia_anos INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
--- Tabla de eventos
-CREATE TABLE IF NOT EXISTS eventos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    titulo VARCHAR(200) NOT NULL,
+-- Tabla de moderadores
+CREATE TABLE moderadores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    telefono VARCHAR(20),
+    celular VARCHAR(20),
+    direccion TEXT,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    periodo_inicio ENUM('AM', 'PM') NOT NULL,
+    periodo_fin ENUM('AM', 'PM') NOT NULL,
+    dias_moderacion VARCHAR(255),
+    area_moderacion VARCHAR(100),
+    nivel_experiencia VARCHAR(50),
+    estado_civil VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Tabla de permisos
+CREATE TABLE permisos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,
     descripcion TEXT,
-    fecha_inicio DATETIME NOT NULL,
-    fecha_fin DATETIME NOT NULL,
-    tipo ENUM('local', 'zonal') NOT NULL,
-    club_id INT,
-    FOREIGN KEY (club_id) REFERENCES clubes(id)
+    categoria VARCHAR(50),
+    nivel_requerido INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL
 );
 
--- Tabla de finanzas
-CREATE TABLE IF NOT EXISTS finanzas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo ENUM('ingreso', 'gasto') NOT NULL,
-    descripcion VARCHAR(255) NOT NULL,
-    monto DECIMAL(10,2) NOT NULL,
-    fecha DATE NOT NULL,
-    club_id INT,
-    FOREIGN KEY (club_id) REFERENCES clubes(id)
+-- Tabla de relación roles_permisos
+CREATE TABLE roles_permisos (
+    rol_id INT,
+    permiso_id INT,
+    asignado_por INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (rol_id, permiso_id),
+    FOREIGN KEY (rol_id) REFERENCES roles(id),
+    FOREIGN KEY (permiso_id) REFERENCES permisos(id),
+    FOREIGN KEY (asignado_por) REFERENCES usuarios(id)
 );
 
--- Tabla de documentos
-CREATE TABLE IF NOT EXISTS documentos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    titulo VARCHAR(200) NOT NULL,
-    tipo ENUM('guia_seguimiento', 'registro_unidad', 'otro') NOT NULL,
-    contenido TEXT NOT NULL,
-    club_id INT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (club_id) REFERENCES clubes(id)
+-- Tabla de auditoría
+CREATE TABLE auditoria (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT,
+    accion VARCHAR(50) NOT NULL,
+    tabla_afectada VARCHAR(50) NOT NULL,
+    registro_id INT,
+    detalles TEXT,
+    datos_anteriores TEXT,
+    datos_nuevos TEXT,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Tabla de sesiones
+CREATE TABLE sesiones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT,
+    token VARCHAR(255) NOT NULL,
+    fecha_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_expiracion TIMESTAMP,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    activa BOOLEAN DEFAULT true,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );

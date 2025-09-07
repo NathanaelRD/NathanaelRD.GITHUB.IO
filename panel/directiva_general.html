@@ -30,6 +30,7 @@
     </style>
 </head>
 <body>
+    <a href="../index.html" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">Volver al Inicio</a>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -91,10 +92,7 @@
     <script>
         // Verificar autenticación al cargar la página
         window.onload = function() {
-            const user = JSON.parse(sessionStorage.getItem('user'));
-            if (!user || !user.token || user.role !== 'directiva') {
-                window.location.href = '../index.html';
-            }
+            // Se permite el acceso sin necesidad de iniciar sesión
         };
 
         // Función para cerrar sesión

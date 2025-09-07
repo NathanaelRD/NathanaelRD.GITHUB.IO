@@ -25,6 +25,7 @@
     </style>
 </head>
 <body>
+    <a href="../index.html" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">Volver al Inicio</a>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -139,10 +140,7 @@
     <script>
         // Verificar autenticación al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
-            const user = JSON.parse(sessionStorage.getItem('user'));
-            if (!user || user.role !== 'admin') {
-                window.location.href = '../index.html';
-            }
+            // Se permite el acceso sin necesidad de iniciar sesión
         });
 
         // Función para cerrar sesión
@@ -230,6 +228,7 @@
             // Obtener cumpleaños de locutores
             try {
                 const locutores = JSON.parse(localStorage.getItem('registros')) || [];
+                const locutores = JSON.parse(localStorage.getItem('registrosLocutor')) || [];
                 const cumpleañosLocutores = locutores.filter(locutor => {
                     const mes = procesarFecha(locutor.cumpleanos);
                     return mes === mesActual;
@@ -244,6 +243,7 @@
                 const moderadores = JSON.parse(localStorage.getItem('registrosModerador')) || [];
                 const cumpleañosModerador = moderadores.filter(moderador => {
                     const mes = procesarFecha(moderador.fechaCumpleanos);
+                    const mes = procesarFecha(moderador.fechaCumple);
                     return mes === mesActual;
                 }).length;
                 total += cumpleañosModerador;

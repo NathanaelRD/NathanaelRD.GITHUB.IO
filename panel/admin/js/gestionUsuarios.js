@@ -115,24 +115,6 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
 
 // Validación de acceso a páginas
 function validatePageAccess(username, page) {
-    const user = users.find(u => u.username === username);
-    if (!user) return false;
-
-    // Obtener permisos guardados o usar permisos por defecto según rol
-    const savedPermissions = JSON.parse(localStorage.getItem(`permissions_${username}`) || '[]');
-    if (savedPermissions.length > 0) {
-        return savedPermissions.includes(page);
-    }
-
-    // Validar según rol por defecto
-    switch(user.role) {
-        case 'admin':
-            return true;
-        case 'directiva':
-            return page === 'directiva_general.html' || page === 'Reportes_Directores.html';
-        case 'dh':
-            return page === 'Reportes_Directores.html';
-        default:
-            return false;
-    }
+    // Se permite el acceso sin necesidad de iniciar sesión
+    return true;
 }
